@@ -13,7 +13,7 @@ module.exports.getUser = (req, res) => {
   const { id } = req.params;
   User.findById(id)
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найден.');
+      throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
@@ -43,9 +43,9 @@ module.exports.createUser = (req, res) => {
 //  обновляет профиль
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate({ name, about }, req.user._id, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найден.');
+      throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
@@ -62,7 +62,7 @@ module.exports.updateUser = (req, res) => {
 //  обновляет аватар
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate({ avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден.');
     })
