@@ -34,10 +34,13 @@ module.exports.deleteCard = (req, res) => {
       } res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Карточка не найден.' });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
       }
-      return res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -55,10 +58,13 @@ module.exports.likeCard = (req, res) => {
       } res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Карточка не найден.' });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
       }
-      return res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -77,7 +83,9 @@ module.exports.dislikeCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Карточка не найден.' });
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
       } else {
         res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
