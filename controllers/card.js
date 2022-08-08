@@ -72,13 +72,15 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(ERROR_CODE_404).send({ message: 'Карточка не найдена' });
-        return;
-      } res.send({ data: card });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+        res.status(ERROR_CODE_400).send({ message: 'Некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
       }
-      return res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
     });
 };
