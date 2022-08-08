@@ -13,7 +13,7 @@ module.exports.getUsers = (req, res) => {
 
 //  загрузка пользователя по id
 module.exports.getUser = (req, res) => {
-  const id = req.params;
+  const { id } = req.params;
   User.findById(id)
     .then((user) => {
       if (!user) {
@@ -22,7 +22,15 @@ module.exports.getUser = (req, res) => {
       }
       res.send({ data: user });
     })
-    .catch(() => res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден.' });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE_400).send({ message: 'Некорректный id' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 // создаем пользователя
@@ -41,7 +49,7 @@ module.exports.createUser = (req, res) => {
 //  обновляет профиль
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate({ name, about }, req.user._id, { new: true })
+  User.findByIdAndUpdate({ name, about }, req.user._id, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден.' });
@@ -50,17 +58,20 @@ module.exports.updateUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_400).send({ message: 'Некорректные данные при обновлении профиля' });
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден.' });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE_400).send({ message: 'Некорректный id' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
       }
-      return res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
     });
 };
 
 //  обновляет аватар
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate({ avatar }, { new: true })
+  User.findByIdAndUpdate({ avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден.' });
@@ -69,9 +80,12 @@ module.exports.updateAvatar = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_400).send({ message: 'Некорректные данные при обновлении аватара.' });
+      if (err.status === 404) {
+        res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден.' });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE_400).send({ message: 'Некорректный id' });
+      } else {
+        res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
       }
-      return res.status(ERROR_CODE_500).send({ message: 'Произошла ошибка' });
     });
 };
