@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
+const wayRouter = require('./routes/wrongway');
 
 const { PORT = 3000 } = process.env;
 
@@ -33,5 +34,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', userRouter);
 app.use('/', cardRouter);
+app.use(wayRouter);
 
 app.listen(PORT);
