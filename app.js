@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const { createUser, login } = require('./controllers/user');
+const auth = require('./middlewares/auth');
+
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
 const wayRouter = require('./routes/wrongway');
@@ -23,15 +26,13 @@ mongoose
     });
   });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62ed37193c58953974432516',
-  };
-
-  next();
-});
-
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post('/signin', login);
+app.post('/signup', createUser);
+
+app.use(auth);
+
 app.use('/', userRouter);
 app.use('/', cardRouter);
 app.use(wayRouter);
