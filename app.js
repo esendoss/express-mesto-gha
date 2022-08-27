@@ -2,9 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const { errors } = require('celebrate');
+const { centralError } = require('./middlewares/centralError');
+
 const { createUser, login } = require('./controllers/user');
 const auth = require('./middlewares/auth');
-
+const { validateLogin, validateRegister } = require('./middlewares/validation');
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
 const wayRouter = require('./routes/wrongway');
@@ -28,13 +31,16 @@ mongoose
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateRegister, createUser);
 
 app.use(auth);
 
-app.use('/', userRouter);
-app.use('/', cardRouter);
+app.use('/', auth, userRouter);
+app.use('/', auth, cardRouter);
 app.use(wayRouter);
+
+app.use(errors());
+app.use(centralError);
 
 app.listen(PORT);
