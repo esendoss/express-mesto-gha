@@ -66,7 +66,7 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new UncorrectError({ message: 'Переданы некорректные данные' }));
+        next(new UncorrectError({ message: err.errMessage }));
       }
       next(err);
     });

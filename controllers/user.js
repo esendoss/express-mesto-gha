@@ -10,11 +10,10 @@ const ErrorCode = require('../errorCode/errorCode');
 //  загрузка всех пользователей из бд
 module.exports.getUsers = (req, res, next) => {
   User.find()
-    .then((user) => res.send({ data: user }))
-    .catch(next);
+    .then((user) => res.status(ErrorCode.ERROR_CODE_200).send({ data: user }))
+    .catch((err) => next(err));
 };
 
-//
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
@@ -68,10 +67,9 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
+    .then((user) => User.findOne({ _id: user._id }))
     .then((newUser) => {
-      res.status(ErrorCode.ERROR_CODE_200).send({
-        _id: newUser._id, name, about, avatar, email,
-      });
+      res.status(ErrorCode.ERROR_CODE_200).send(newUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

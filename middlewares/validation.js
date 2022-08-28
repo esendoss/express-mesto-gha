@@ -28,7 +28,7 @@ const validateRegister = celebrate({
 
 const validateUserId = (nameId) => celebrate({
   params: Joi.object().keys({
-    [nameId]: Joi.string().hex().required().length(24),
+    [nameId]: Joi.string().hex().length(24),
   }),
 });
 
