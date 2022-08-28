@@ -57,22 +57,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new UncorrectError('Некорректные данные при создании пользователя'));
-      } else if (err.code === '11000') {
-        next(new EmailError({ message: 'err.errMessage' }));
-      } else {
-        next(err);
-      }
-    })
-    .catch(next);
-};
-/*
   User.findOne({ email })
     .then((user) => {
       if (user) {
@@ -95,7 +79,7 @@ module.exports.createUser = (req, res, next) => {
       }
     });
 };
-*/
+
 //  обновляет профиль
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
