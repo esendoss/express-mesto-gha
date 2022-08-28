@@ -1,7 +1,6 @@
-const centralError = (err, req, res, next) => {
+module.exports.centralError = (err, req, res, next) => {
   const status = err.statusCode || 500;
-  res.status(status).send({ err, message: err.errorMessage });
+  res.status(status).send({ err });
 
   next();
 };
-module.exports = centralError;
