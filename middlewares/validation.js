@@ -1,6 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
 
-const linkRegExp = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/i;
+const validation = (value, helpers) => {
+  const linkRegExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/;
+
+  if (!linkRegExp.test(value)) {
+    return helpers.error('Ссылка не валидна');
+  }
+  return value;
+};
 
 const validateLogin = celebrate({
   body: Joi.object().keys({
@@ -13,51 +20,43 @@ const validateRegister = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(linkRegExp),
+    avatar: Joi.string().custom(validation),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 });
 
-const validateUserId = celebrate({
+const validateUserId = (nameId) => celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().required().length(24),
+    [nameId]: Joi.string().hex().required().length(24),
   }),
 });
 
 const validateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(linkRegExp),
+    avatar: Joi.string().required().custom(validation),
   }),
 });
 
 const validateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
   }),
 });
 
 const validateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().regex(linkRegExp),
-  }),
-});
-
-const validateUserCard = celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().hex().required().length(24),
+    link: Joi.string().required().custom(validation),
   }),
 });
 
 module.exports = {
-  linkRegExp,
   validateLogin,
   validateRegister,
   validateUserId,
   validateUser,
   validateAvatar,
   validateCard,
-  validateUserCard,
 };

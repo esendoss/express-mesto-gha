@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
-
-const { linkReqExp } = require('../middlewares/validation');
+const { isURL } = require('validator');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -13,12 +12,13 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: linkReqExp,
+      validator: (v) => isURL(v, { required_protocol: true }),
       message: 'Неправильный формат URL',
     },
   },
   owner: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
   },
   likes: {

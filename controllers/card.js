@@ -1,47 +1,55 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
+const UncorrectError = require('../errors/UncorrectError');
 const ErrorCode = require('../errorCode/errorCode');
 
 //  возвращает все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send(cards))
-    .catch(() => res.status(ErrorCode.ERROR_CODE_500).send({ message: 'Произошла ошибка' }));
+    .then((cards) => res.status(ErrorCode.ERROR_CODE_200).send(cards))
+    .catch((err) => next(err));
 };
 
 // создаёт карточку
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((newCard) => res.status(ErrorCode.ERROR_CODE_200).send(newCard))
+    .then((card) => {
+      if (!card) {
+        next(new UncorrectError('Некорректные данные'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ErrorCode.ERROR_CODE_400).send({ message: 'Некорректные данные при создании карточки' });
+        next(new UncorrectError({ message: err.errMessage }));
       }
-      return res.status(ErrorCode.ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 //  удаляет карточку по идентификатору
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.status(ErrorCode.ERROR_CODE_200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        next(new NotFoundError('Карточка не найдена'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: card, message: 'Карточка удалена' });
+    })
     .catch((err) => {
-      if (err.statusCode === 404) {
-        return res.status(ErrorCode.ERROR_CODE_404).send({ message: err.errMessage });
-      }
       if (err.name === 'CastError') {
-        return res.status(ErrorCode.ERROR_CODE_400).send({ message: 'Некорректные данные' });
+        next(new UncorrectError({ message: 'Переданы некорректные данные' }));
       }
-      return res.status(ErrorCode.ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 //  поставить лайк карточке
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -50,20 +58,22 @@ module.exports.likeCard = (req, res) => {
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.status(ErrorCode.ERROR_CODE_200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        next(new NotFoundError('Карточка не найдена'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: card });
+    })
     .catch((err) => {
-      if (err.statusCode === 404) {
-        return res.status(ErrorCode.ERROR_CODE_404).send({ message: err.errMessage });
-      }
       if (err.name === 'CastError') {
-        return res.status(ErrorCode.ERROR_CODE_400).send({ message: 'Некорректные данные' });
+        next(new UncorrectError({ message: 'Переданы некорректные данные' }));
       }
-      return res.status(ErrorCode.ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 // убрать лайк с карточки
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -72,14 +82,16 @@ module.exports.dislikeCard = (req, res) => {
     .orFail(() => {
       throw new NotFoundError('Карточка не найдена');
     })
-    .then((card) => res.status(ErrorCode.ERROR_CODE_200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        next(new NotFoundError('Карточка не найдена'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: card });
+    })
     .catch((err) => {
-      if (err.statusCode === 404) {
-        return res.status(ErrorCode.ERROR_CODE_404).send({ message: err.errMessage });
-      }
       if (err.name === 'CastError') {
-        return res.status(ErrorCode.ERROR_CODE_400).send({ message: 'Некорректные данные' });
+        next(new UncorrectError({ message: 'Переданы некорректные данные' }));
       }
-      return res.status(ErrorCode.ERROR_CODE_500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };

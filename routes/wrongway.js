@@ -1,7 +1,8 @@
 const wayRouter = require('express').Router();
+const NotFoundError = require('../errors/NotFoundError');
 
-wayRouter.use((req, res) => {
-  res.status(404).send({ message: 'Путь не найден' });
+wayRouter.use((req, res, next) => {
+  next(new NotFoundError({ message: 'Путь не найден' }));
 });
 
 module.exports = wayRouter;

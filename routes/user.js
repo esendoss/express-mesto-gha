@@ -16,8 +16,8 @@ const {
 
 userRouter.get('/users', auth, getUsers);
 userRouter.get('/users/me', auth, getUser);
-userRouter.get('/users/:userId', validateUserId, getUserId);
-userRouter.patch('/users/me', validateUser, updateUser);
+userRouter.get('/users/:userId', auth, validateUserId('userId'), getUserId);
+userRouter.patch('/users/me', auth, validateUser, updateUser);
 userRouter.patch('/users/me/avatar', validateAvatar, updateAvatar);
 
 module.exports = userRouter;
