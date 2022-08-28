@@ -17,6 +17,10 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateRegister, createUser);
 
 mongoose
   .connect('mongodb://localhost:27017/mestodb')
@@ -28,11 +32,6 @@ mongoose
       stack: err.stack,
     });
   });
-
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.post('/signin', validateLogin, login);
-app.post('/signup', validateRegister, createUser);
 
 app.use(auth);
 

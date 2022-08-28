@@ -58,7 +58,13 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        next(new EmailError(`Пользователь с таким email ${email} уже зарегистрирован`));
+      }
+      return bcrypt.hash(password, 10);
+    })
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
@@ -83,9 +89,14 @@ module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
+      throw new UncorrectError('Некорректные данные');
     })
-    .then((user) => res.status(ErrorCode.ERROR_CODE_200).send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        next(new UncorrectError('Некорректные данные'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new UncorrectError('Некорректный id'));
@@ -99,9 +110,14 @@ module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найден.');
+      throw new UncorrectError('Некорректные данные');
     })
-    .then((user) => res.status(ErrorCode.ERROR_CODE_200).send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        next(new UncorrectError('Некорректные данные'));
+      }
+      res.status(ErrorCode.ERROR_CODE_200).send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new UncorrectError('Некорректный id'));
