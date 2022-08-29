@@ -135,7 +135,7 @@ module.exports.login = (req, res, next) => {
         httpOnly: true,
         sameSite: true,
       });
-      res.status(ErrorCode.ERROR_CODE_201).send({ message: 'Авторизация прошла успешно', token });
+      res.send({ message: 'Авторизация прошла успешно', token });
     })
     .catch((err) => {
       if (err.message === '401') {
