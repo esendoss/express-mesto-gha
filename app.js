@@ -26,12 +26,13 @@ app.post('/signin', validateLogin, login);
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true });
 
-app.use(errorLoger);
 app.use(auth);
 
 app.use('/', auth, userRouter);
 app.use('/', auth, cardRouter);
 app.use(wayRouter);
+
+app.use(errorLoger);
 
 app.use(errors());
 app.use(centralError);
