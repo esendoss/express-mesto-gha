@@ -64,34 +64,7 @@ module.exports.createUser = (req, res, next) => {
       }
     });
 };
-/*
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-  User.findOne({ email })
-    .then((user) => {
-      if (user) {
-        next(new EmailError(`Пользователь с таким email ${email} уже зарегистрирован`));
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => User.findOne({ _id: user._id }))
-    .then((user) => res.status(ErrorCode.ERROR_CODE_200).send({ user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new UncorrectError('Некорректные данные при создании пользователя'));
-      } else if (err.code === '11000') {
-        next(new EmailError({ message: 'err.errMessage' }));
-      } else {
-        next(err);
-      }
-    });
-};
-*/
+
 //  обновляет профиль
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
