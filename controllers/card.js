@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const UncorrectError = require('../errors/UncorrectError');
+const DeleteCardError = require('../errors/DeleteCardError');
 const ErrorCode = require('../errorCode/errorCode');
 
 //  возвращает все карточки
@@ -35,8 +36,8 @@ module.exports.deleteCard = (req, res, next) => {
       throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
+      if (!card.owner.equals(req.user._id)) {
+        next(new DeleteCardError('Отсутствуют права на удаление'));
       }
       res.status(ErrorCode.ERROR_CODE_200).send({ data: card, message: 'Карточка удалена' });
     })
