@@ -28,8 +28,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true })
 
 app.use(auth);
 
-app.use('/', auth, userRouter);
-app.use('/', auth, cardRouter);
+app.use('/', userRouter);
+app.use('/', cardRouter);
 app.use(wayRouter);
 
 app.use(errorLoger);

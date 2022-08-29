@@ -21,13 +21,7 @@ module.exports.getUser = (req, res, next) => {
       }
       res.status(ErrorCode.ERROR_CODE_200).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new UncorrectError('Некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 //  загрузка пользователя по id
@@ -58,6 +52,7 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
+    .then((user) => res.status(ErrorCode.ERROR_CODE_201).send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new UncorrectError('Некорректные данные при создании пользователя'));
@@ -66,8 +61,7 @@ module.exports.createUser = (req, res, next) => {
       } else {
         next(err);
       }
-    })
-    .catch(next);
+    });
 };
 /*
 module.exports.createUser = (req, res, next) => {
